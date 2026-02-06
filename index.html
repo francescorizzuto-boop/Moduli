@@ -1,0 +1,2010 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Compilazione allegati – Centri UniPA</title>
+
+  <!-- pdf-lib (merge + create PDF in-browser) -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <style>
+    :root{
+      --bg: #0b0f17;
+      --panel: #111827;
+      --panel2:#0f172a;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --border:#263244;
+      --accent:#60a5fa;
+      --accent2:#22c55e;
+      --danger:#ef4444;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+      --field:#0b1220;
+      --chip:#101a2c;
+      --link:#93c5fd;
+      --focus: rgba(96,165,250,.35);
+      --brand: #1d4ed8;
+    }
+    [data-theme="light"]{
+      --bg:#f6f8fb;
+      --panel:#ffffff;
+      --panel2:#f1f5f9;
+      --text:#0f172a;
+      --muted:#475569;
+      --border:#d7dee7;
+      --accent:#0b4fa3;
+      --accent2:#0f766e;
+      --danger:#b42318;
+      --shadow: 0 10px 26px rgba(2,6,23,.10);
+      --radius: 16px;
+      --field:#ffffff;
+      --chip:#eef2ff;
+      --link:#0b4fa3;
+      --focus: rgba(11,79,163,.20);
+      --brand:#0b4fa3;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(96,165,250,.20), transparent 55%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(34,197,94,.14), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+    }
+    header{
+      position:sticky; top:0; z-index:5;
+      backdrop-filter: blur(10px);
+      background: color-mix(in srgb, var(--bg) 80%, transparent);
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:16px 18px;}
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    }
+    .title{
+      display:flex; gap:12px; align-items:flex-start;
+    }
+    .badge{
+      width:40px; height:40px; border-radius:12px;
+      background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent2) 55%, var(--accent) 45%));
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      color:white; font-weight:800;
+    }
+    h1{font-size:18px; margin:0; letter-spacing:.2px}
+    .subtitle{font-size:13px; color:var(--muted); margin-top:4px; line-height:1.35}
+    .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    button{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 85%, transparent), var(--panel2));
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,.15);
+      font-weight:600;
+      font-size:13px;
+    }
+    button:hover{border-color: color-mix(in srgb, var(--border) 55%, var(--accent) 45%);}
+    button:focus{outline:2px solid var(--focus); outline-offset:2px;}
+    .btn-primary{
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--border) 45%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 35%, var(--panel) 65%), var(--panel2));
+    }
+    .btn-good{
+      border-color: color-mix(in srgb, var(--accent2) 55%, var(--border) 45%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent2) 22%, var(--panel) 78%), var(--panel2));
+    }
+    .btn-danger{
+      border-color: color-mix(in srgb, var(--danger) 55%, var(--border) 45%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--danger) 20%, var(--panel) 80%), var(--panel2));
+    }
+
+    /* Layout a colonna singola (Guida rapida rimossa) */
+    main .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:16px;
+      padding:16px 18px 26px;
+      max-width:1100px;
+      margin:0 auto;
+    }
+
+    .card{
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 94%, transparent), var(--panel2));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card-h{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    }
+    .card-h h2{
+      font-size:14px; margin:0; letter-spacing:.2px;
+    }
+    .card-h p{
+      margin:6px 0 0;
+      font-size:12px; color:var(--muted); line-height:1.35;
+    }
+    .card-b{padding:14px;}
+    .row{display:grid; grid-template-columns: 220px 1fr; gap:10px; align-items:start; margin:10px 0;}
+    @media (max-width: 700px){ .row{grid-template-columns:1fr} }
+
+    label{font-size:12px; color:var(--muted); display:block; padding-top:8px;}
+    select, input[type="text"], input[type="number"], input[type="date"], textarea{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: var(--field);
+      color: var(--text);
+      font-size:13px;
+    }
+    textarea{min-height:92px; resize:vertical;}
+    input:focus, select:focus, textarea:focus{outline:2px solid var(--focus); outline-offset:2px;}
+    .hint{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.35;}
+    .hr{height:1px; background:var(--border); margin:14px 0;}
+
+    .chips{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{
+      padding:6px 10px;
+      border:1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      font-size:12px;
+      color: color-mix(in srgb, var(--text) 86%, var(--muted) 14%);
+    }
+    .chip strong{color:var(--text)}
+    .status{
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--panel2) 70%, transparent);
+      color: var(--muted);
+    }
+    .status.ok{border-color: color-mix(in srgb, var(--accent2) 55%, var(--border) 45%); color: color-mix(in srgb, var(--accent2) 65%, var(--text) 35%);}
+    .status.err{border-color: color-mix(in srgb, var(--danger) 55%, var(--border) 45%); color: color-mix(in srgb, var(--danger) 65%, var(--text) 35%);}
+
+    .filebox{
+      border:1px dashed color-mix(in srgb, var(--border) 70%, var(--muted) 30%);
+      background: color-mix(in srgb, var(--panel2) 70%, transparent);
+      border-radius: 14px;
+      padding:12px;
+    }
+    .filebox input[type="file"]{width:100%}
+    .small{font-size:12px; color:var(--muted); margin-top:8px; line-height:1.35;}
+    a{color:var(--link); text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .section-title{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin:4px 0 10px;
+    }
+    .section-title h3{margin:0; font-size:13px;}
+    .req{font-size:11px; color:var(--muted);}
+    .warn{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid color-mix(in srgb, var(--danger) 40%, var(--border) 60%);
+      background: color-mix(in srgb, var(--danger) 10%, transparent);
+      color: color-mix(in srgb, var(--text) 88%, var(--danger) 12%);
+      font-size:12px;
+      line-height:1.35;
+    }
+  </style>
+</head>
+
+<body data-theme="light">
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <div class="badge">U</div>
+        <div>
+          <h1>Modulistica Gestione Centri</h1>
+          <div class="subtitle">
+            Seleziona la tipologia di Centro e l’Allegato. I campi si adattano automaticamente.
+            Al termine, genera un unico PDF che include il riepilogo dei dati e tutte le PDF caricate (pagine accodate).
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btnTheme" type="button" class="btn-primary" title="Cambia tema">Tema: Scuro</button>
+        <button id="btnMaster" type="button" class="btn-primary" title="Modalità Master">Master</button>
+        <button id="btnSave" type="button">Salva bozza</button>
+        <button id="btnLoad" type="button">Recupera bozza</button>
+        <button id="btnClear" type="button" class="btn-danger">Svuota</button>
+        <button id="btnPDF" type="button" class="btn-good">Genera PDF</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card">
+      <div class="card-h">
+        <div>
+          <h2>1. Selezione</h2>
+          <p>La selezione del tipo di Centro determina automaticamente gli Allegati disponibili.</p>
+        </div>
+        <div class="status" id="statusBox">In attesa di selezioni…</div>
+      </div>
+
+      <div class="card-b">
+        <div class="row">
+          <label for="tipoCentro">Tipo di centro</label>
+          <div>
+            <select id="tipoCentro">
+              <option value="">— Seleziona —</option>
+              <option value="interuniversitario">Centro Interuniversitario</option>
+              <option value="interdipartimentale">Centro Interdipartimentale</option>
+              <option value="servizi">Centro di Servizi</option>
+              <option value="ateneo">Centro di Ateneo</option>
+            </select>
+            <div class="hint">Questa scelta filtra l’elenco degli Allegati (A–N).</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="allegato">Allegato</label>
+          <div>
+            <select id="allegato" disabled>
+              <option value="">— Seleziona prima il tipo di centro —</option>
+            </select>
+            <div class="hint" id="allegatoHint">Seleziona un Allegato per visualizzare i campi.</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">
+          <h3>2. Dati generali</h3>
+          <div class="req">Consigliato</div>
+        </div>
+
+        <div class="row">
+          <label id="lblProtocollo" for="protocollo">Referente per il Centro</label>
+          <div>
+            <input id="protocollo" type="text" placeholder="Nominativo e ruolo" />
+            <div class="hint">Facoltativo: utile per rintracciare la pratica.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <label id="lblDataCompilazione" for="dataCompilazione">Data compilazione</label>
+          <div>
+            <input id="dataCompilazione" type="date" />
+          </div>
+        </div>
+
+        <div class="row">
+          <label id="lblNoteGenerali" for="noteGenerali">Note generali</label>
+          <div>
+            <textarea id="noteGenerali" placeholder="Eventuali note per l’istruttoria…"></textarea>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">
+          <h3>3. Informazioni pratica</h3>
+          <div class="req">Obbligatorio</div>
+        </div>
+
+        <div id="dynamicFields" class="hint">
+          Seleziona un Allegato per iniziare la compilazione.
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">
+          <h3>4. Allegati PDF</h3>
+          <div class="req">Più file (accodabili)</div>
+        </div>
+
+        <div class="filebox">
+          <div class="hint" style="margin:0 0 10px;">
+            Puoi aggiungere più PDF anche in momenti diversi. I file verranno accodati nel PDF finale nell’ordine mostrato.
+          </div>
+
+          <div id="requiredPdfInfo" class="warn" style="display:none; margin:0 0 10px;">
+            <strong>Documenti da allegare</strong><br>
+            • Bozza della convenzione ai sensi dell'Art. 8 del Regolamento sui Centri<br>
+            • Estratto verbale/i Consiglio/i di Dipartimento ai sensi dell'Art. 4 comma 2 lettera g del Regolamento sui Centri
+          </div>
+
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+            <button id="btnAddFiles" type="button" class="btn-primary">Aggiungi PDF</button>
+            <button id="btnClearFiles" type="button" class="btn-danger">Svuota allegati</button>
+          </div>
+
+          <input id="fileUploads" type="file" accept="application/pdf" multiple style="display:none" />
+
+          <div class="small" id="fileList">Nessun file caricato.</div>
+          <div class="small">Nota: sono accettati esclusivamente file PDF.</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">
+          <h3>5. Riepilogo</h3>
+          <div class="req">Automatico</div>
+        </div>
+
+        <div class="chips" id="summaryChips">
+          <div class="chip"><strong>Centro:</strong> —</div>
+          <div class="chip"><strong>Allegato:</strong> —</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="section-title">
+          <h3>6. Invio Allegati</h3>
+          <div class="req">Informativo</div>
+        </div>
+        <div class="warn" id="invioTextBox">
+          il file PDF generato va inviato ..........
+        </div>
+
+      </div>
+
+        <!-- ===== Modalità Master: editor configurazione (protetto da login) ===== -->
+        <div class="hr"></div>
+
+        <div id="masterPanel" style="display:none;">
+          <div class="section-title">
+            <h3>7. Configurazione (solo Master)</h3>
+            <button id="btnMasterLogout" type="button" class="btn-danger" style="padding:8px 10px; border-radius:10px;">Logout</button>
+            <div class="req">Amministrazione</div>
+          </div>
+
+          <div class="warn" style="margin:0 0 10px;">
+            Questa modalità consente di <strong>rinominare, aggiungere o eliminare</strong> campi (“Informazioni pratica”) e requisiti (“Allegati PDF”)
+            modificando la configurazione JSON (ALLEGATI, CENTRI, PDF_REQUIREMENTS).
+            <br><br>
+            Nota: il controllo accessi è <strong>solo lato browser</strong>. Per una protezione reale serve un backend.
+          </div>
+
+          
+          <div class="section-title" style="margin-top:14px;">
+            <h3>Editor guidato</h3>
+            <div class="req">Campi & requisiti PDF</div>
+          </div>
+
+          <div class="row">
+            <label for="guidedAllegato">Allegato da modificare</label>
+            <div>
+              <select id="guidedAllegato"></select>
+              <div class="hint">Seleziona l’Allegato e modifica titolo, campi e requisiti PDF. Le modifiche aggiornano automaticamente il JSON.</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <label for="guidedTitle">Titolo Allegato</label>
+            <div>
+              <input id="guidedTitle" type="text" />
+              <div class="hint">Modifica il testo mostrato nel riepilogo e nell’intestazione dell’Allegato.</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="section-title">
+            <h3>Campi (Informazioni pratica)</h3>
+            <div class="req">ALLEGATI[KEY].fields</div>
+          </div>
+
+          <div id="guidedFieldsList" class="filebox" style="padding:12px;">
+            <div class="small" style="margin:0 0 8px;">Suggerimento: usa “Obbl.” per rendere un campo obbligatorio. Per numeri puoi impostare min/max.</div>
+            <div id="guidedFieldsContainer"></div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+              <button id="btnGuidedAddField" type="button" class="btn-primary">Aggiungi campo</button>
+              <button id="btnGuidedRebuildIds" type="button">Rigenera ID (opz.)</button>
+            </div>
+
+            <div class="small" style="margin-top:8px;">
+              Nota: l’<strong>ID</strong> è usato internamente e nel salvataggio bozza. Evita di cambiarlo se non necessario.
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="section-title">
+            <h3>Requisiti Allegati PDF</h3>
+            <div class="req">PDF_REQUIREMENTS[KEY]</div>
+          </div>
+
+          <div class="filebox" style="padding:12px;">
+            <div class="row" style="margin:0 0 10px;">
+              <label for="guidedPdfMin" style="padding-top:4px;">Minimo PDF obbligatori</label>
+              <div>
+                <input id="guidedPdfMin" type="number" min="0" step="1" />
+                <div class="hint">Se 0 o vuoto, l’avviso requisiti PDF viene nascosto per l’Allegato selezionato.</div>
+              </div>
+            </div>
+
+            <div id="guidedPdfItemsContainer"></div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+              <button id="btnGuidedAddPdfItem" type="button" class="btn-primary">Aggiungi voce</button>
+              <button id="btnGuidedRemovePdfReq" type="button" class="btn-danger">Rimuovi requisiti per questo Allegato</button>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+
+          <div class="section-title" style="margin-top:14px;">
+            <h3>Testi & campi statici</h3>
+            <div class="req">2. Dati generali + 6. Invio Allegati</div>
+          </div>
+
+          <div class="filebox" style="padding:12px; margin-bottom:12px;">
+            <div class="small" style="margin:0 0 10px;">
+              Qui puoi modificare le etichette/placeholder dei <strong>Dati generali</strong> e il testo di <strong>Invio Allegati</strong>.
+              Le modifiche aggiornano il JSON e si applicano quando premi <em>Applica</em> o <em>Salva configurazione</em>.
+            </div>
+
+            <div class="row">
+              <label for="mLabelProtocollo">Label “Referente”</label>
+              <div><input id="mLabelProtocollo" type="text"></div>
+            </div>
+            <div class="row">
+              <label for="mPlaceholderProtocollo">Placeholder “Referente”</label>
+              <div><input id="mPlaceholderProtocollo" type="text"></div>
+            </div>
+            <div class="row">
+              <label for="mHintProtocollo">Hint “Referente”</label>
+              <div><input id="mHintProtocollo" type="text"></div>
+            </div>
+            <div class="row">
+              <label for="mLabelDataComp">Label “Data compilazione”</label>
+              <div><input id="mLabelDataComp" type="text"></div>
+            </div>
+            <div class="row">
+              <label for="mLabelNoteGen">Label “Note generali”</label>
+              <div><input id="mLabelNoteGen" type="text"></div>
+            </div>
+            <div class="row">
+              <label for="mPlaceholderNoteGen">Placeholder “Note generali”</label>
+              <div><input id="mPlaceholderNoteGen" type="text"></div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="row">
+              <label for="mInvioText">Testo “Invio Allegati”</label>
+              <div>
+                <textarea id="mInvioText" style="min-height:90px;"></textarea>
+                <div class="hint">Questo testo comparirà anche nel PDF generato.</div>
+              </div>
+            </div>
+          </div>
+
+<div class="row">
+            <label for="cfgJson">Configurazione JSON</label>
+            <div>
+              <textarea id="cfgJson" style="min-height:260px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;"></textarea>
+              <div class="hint">Suggerimento: usa CTRL+F per trovare “A”, “B”, “C”… e modifica titoli/campi/requisiti.</div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                <button id="btnCfgApply" type="button" class="btn-good">Applica (senza salvare)</button>
+                <button id="btnCfgSave" type="button" class="btn-primary">Salva configurazione</button>
+                <button id="btnCfgReset" type="button" class="btn-danger">Ripristina default</button>
+                <button id="btnCfgExport" type="button">Esporta JSON</button>
+                <button id="btnCfgImport" type="button">Importa JSON</button>
+                <input id="cfgImportFile" type="file" accept="application/json" style="display:none" />
+              </div>
+
+              <div class="small" id="cfgStatus" style="margin-top:8px;">Stato: —</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Login dialog -->
+        <div id="masterLoginOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:50;">
+          <div style="max-width:420px; margin:10vh auto; padding:16px; border-radius:16px; background:var(--panel); border:1px solid var(--border); box-shadow: var(--shadow);">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+              <div>
+                <div style="font-weight:800;">Accesso Modalità Master</div>
+                <div class="hint" style="margin:6px 0 0;">Inserisci user e password.</div>
+              </div>
+              <button id="btnMasterClose" type="button" class="btn-danger" style="padding:8px 10px; border-radius:10px;">Chiudi</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="row">
+              <label for="masterUser">User</label>
+              <div><input id="masterUser" type="text" placeholder="Master" /></div>
+            </div>
+            <div class="row">
+              <label for="masterPass">Password</label>
+              <div><input id="masterPass" type="text" placeholder="Password" /></div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+              <button id="btnMasterLogin" type="button" class="btn-good">Login</button>
+            </div>
+
+            <div class="small" id="masterLoginMsg" style="margin-top:8px;"></div>
+          </div>
+        </div>
+        <!-- ===== Fine Modalità Master ===== -->
+
+    </section>
+  </div>
+</main>
+
+<script>
+const DEFAULT_ALLEGATI = {
+  A: { key:"A", centro:"interuniversitario", title:"Allegato A – CAPO I ART. 4 – Proposta di istituzione di un Centro Interuniversitario",
+    fields: [
+      { id:"denominazione", label:"Denominazione del Centro Interuniversitario", type:"text", required:true },
+      { id:"durata", label:"Durata (anni) – min 3 max 6", type:"number", min:3, max:6, required:true },
+      { id:"missione_obiettivi", label:"Missione e obiettivi del Centro", type:"textarea", required:true },
+      { id:"indicatori_monitoraggio", label:"Indicatori di monitoraggio", type:"textarea", required:true },
+      { id:"ambiti_attivita", label:"Ambiti di attività previsti in temi di ricerca, riferimento tecnologico e Terza missione", type:"textarea", required:true },
+      { id:"programma", label:"Programma delle attività per il periodo individuato", type:"textarea", required:true },
+            { id:"atenei_aderenti", label:"Elenco degli Atenei che intendono aderire", type:"textarea", required:true },
+            { id:"pianificazione_sito", label:"Pianificazione del sito web del Centro Interuniversitario", type:"textarea", required:true },
+    ]
+  },
+  B: { key:"B", centro:"interuniversitario", title:"Allegato B – CAPO I ART. 5 – Proposta di adesione ad un Centro Interuniversitario di altri Atenei",
+    fields: [
+      { id:"bozza_convenzione", label:"Bozza della Convenzione – descrizione / riferimento file", type:"textarea", required:true },
+      { id:"verbali", label:"Estratto verbale/i Consiglio/i di Dipartimento (adesione + docenti referenti) – estremi", type:"textarea", required:true },
+    ]
+  },
+  C: { key:"C", centro:"interuniversitario", title:"Allegato C – CAPO I ART. 6 – Istanza di rinnovo di un Centro Interuniversitario",
+    fields: [
+      { id:"durata", label:"Durata rinnovo (anni) – min 3 max 6", type:"number", min:3, max:6, required:true },      { id:"delibere_atenei", label:"Elenco degli Atenei che intendono rinnovare l'adesione", type:"textarea", required:true },    ]
+  },
+  E: { key:"E", centro:"interdipartimentale", title:"Allegato E – CAPO II ART. 13 – Proposta di istituzione di un Centro Interdipartimentale",
+    fields: [
+      { id:"denominazione", label:"Denominazione del Centro Interdipartimentale", type:"text", required:true },
+      { id:"durata", label:"Durata (anni) – min 3 max 6", type:"number", min:3, max:6, required:true },
+
+      { id:"missione", label:"Missione e obiettivi del Centro", type:"textarea", required:true },
+      { id:"indicatori_monitoraggio", label:"Indicatori di monitoraggio", type:"textarea", required:true },
+      { id:"ambiti_attivita", label:"Ambiti di attività previsti in temi di ricerca, riferimento tecnologico e Terza missione", type:"textarea", required:true },
+
+      { id:"docenti_afferenti", label:"Elenco nominativo docenti afferenti (almeno 2 Dipartimenti)", type:"textarea", required:true },
+      { id:"dip_sede", label:"Dipartimento sede amministrativa", type:"textarea", required:true },
+      { id:"pianificazione_sito", label:"Pianificazione del sito web del Centro Interdipartimentale", type:"textarea", required:true },
+    ]
+  },
+  F: { key:"F", centro:"interdipartimentale", title:"Allegato F – CAPO II ART. 14 – Istanza di rinnovo di un Centro Interdipartimentale",
+    fields: [
+      { id:"attivita", label:"Descrizione attività da svolgere e svolte nel periodo precedente", type:"textarea", required:true },
+      { id:"risultati", label:"Risultati delle attività svolte", type:"textarea", required:true },
+      { id:"finanziamenti", label:"Eventuali finanziamenti ricevuti", type:"textarea", required:false },
+      { id:"avanzamento", label:"Stato di avanzamento dei progetti", type:"textarea", required:true },      { id:"dip_gestione", label:"Dipartimento che assume la gestione amministrativa", type:"textarea", required:true },
+    ]
+  },
+  H: { key:"H", centro:"servizi", title:"Allegato H – CAPO III ART. 24 – Proposta di istituzione di un Centro di Servizi",
+    fields: [
+      { id:"denominazione", label:"Denominazione", type:"text", required:true },
+      { id:"missione", label:"Missione, obiettivi, indicatori di monitoraggio e ambiti", type:"textarea", required:true },
+      { id:"programma_catalogo", label:"Programma attività e catalogo eventuali servizi offerti", type:"textarea", required:true },
+      { id:"autonomia", label:"Ragioni per attribuzione autonomia economico-gestionale (art. 23, c.2)", type:"textarea", required:true },
+      { id:"risorse_esterne", label:"Previsione acquisizione risorse esterne (stima primi 3 anni)", type:"textarea", required:true },
+      { id:"pianificazione_sito", label:"Pianificazione del sito web", type:"textarea", required:true },
+      { id:"bozza_regolamento", label:"Bozza regolamento di funzionamento – descrizione / riferimento file", type:"textarea", required:true },
+    ]
+  },
+  L: { key:"L", centro:"ateneo", title:"Allegato L – CAPO IV ART. 36 – Proposta di istituzione di un Centro di Ateneo",
+    fields: [
+      { id:"denominazione", label:"Denominazione", type:"text", required:true },
+      { id:"missione", label:"Missione, obiettivi, indicatori di monitoraggio e ambiti", type:"textarea", required:true },
+      { id:"programma_catalogo", label:"Programma attività e catalogo eventuali servizi offerti", type:"textarea", required:true },
+      { id:"pianificazione_sito", label:"Pianificazione del sito web", type:"textarea", required:true },
+      { id:"bozza_regolamento", label:"Bozza regolamento di funzionamento – descrizione / riferimento file", type:"textarea", required:true },
+    ]
+  },
+  N: { key:"N", centro:"monitoraggio", title:"Allegato N – CAPO VI – Monitoraggio per strutture dotate di budget",
+    fields: [
+      { id:"denominazione_centro", label:"Denominazione Centro", type:"text", required:true },
+      { id:"docenti_afferenti", label:"Nominativi dei docenti afferenti", type:"textarea", required:true },
+      { id:"personale_tab", label:"Nominativi di eventuale personale TAB assegnato", type:"textarea", required:false },
+      { id:"organi_centro", label:"Composizione dei relativi Organi (nominativo e ruolo all’interno del Centro)", type:"textarea", required:true },
+      { id:"ambiti_linee_ricerca", label:"Ambiti e linee di ricerca sviluppate", type:"textarea", required:true },
+    ]
+  },
+  P: { key:"P", centro:"monitoraggio", title:"Allegato P – CAPO VI – Monitoraggio per strutture non dotate di budget",
+    fields: [
+      { id:"denominazione_centro", label:"Denominazione Centro", type:"text", required:true },
+      { id:"docenti_afferenti", label:"Nominativi dei docenti afferenti", type:"textarea", required:true },
+      { id:"organi_centro", label:"Composizione dei relativi Organi (nominativo e ruolo all’interno del Centro)", type:"textarea", required:true },
+      { id:"ambiti_linee_ricerca", label:"Ambiti e linee di ricerca sviluppate", type:"textarea", required:true },
+    ]
+  },
+  Q: { key:"Q", centro:"servizi", title:"Allegato Q – CAPO VI – Monitoraggio per Centri di Servizi",
+    fields: [
+      { id:"denominazione_centro", label:"Denominazione Centro", type:"text", required:true },
+      { id:"docenti_afferenti", label:"Nominativi dei docenti afferenti", type:"textarea", required:true },
+      { id:"personale_tab", label:"Nominativi di eventuale personale TAB assegnato", type:"textarea", required:false },
+      { id:"organi_centro", label:"Composizione dei relativi Organi (nominativo e ruolo all’interno del Centro)", type:"textarea", required:true },
+      { id:"ambiti_linee_ricerca", label:"Ambiti e linee di ricerca sviluppate", type:"textarea", required:true },
+      { id:"introiti_medi_annui", label:"Entità degli introiti medi annui (soglia minima non inferiore a 250.000 euro ex art. 23)", type:"number", min:0, required:true },
+    ]
+  },
+
+};
+
+let ALLEGATI = deepClone(DEFAULT_ALLEGATI);
+
+
+const DEFAULT_CENTRI = {
+  interuniversitario: { label:"Centro Interuniversitario", allegati:["A","B","C","N","P"] },
+  interdipartimentale: { label:"Centro Interdipartimentale", allegati:["E","F","N","P"] },
+  servizi: { label:"Centro di Servizi", allegati:["H","Q"] },
+  ateneo: { label:"Centro di Ateneo", allegati:["L","N","P"] },
+};
+
+let CENTRI = deepClone(DEFAULT_CENTRI);
+
+
+
+const DEFAULT_PDF_REQUIREMENTS = {
+  A: {
+    min: 2,
+    items: [
+      "Bozza della convenzione ai sensi dell'Art. 8 del Regolamento sui Centri",
+      "Estratto verbale/i Consiglio/i di Dipartimento ai sensi dell'Art. 4 comma 2 lettera g del Regolamento sui Centri"
+    ]
+  },
+  B: {
+    min: 2,
+    items: [
+      "Bozza della Convenzione ai sensi dell'art. 5 del Regolamento",
+      "Estratto del verbale del Consiglio di Dipartimento dei Dipartimenti coinvolti"
+    ]
+  },
+  C: {
+    min: 4,
+    items: [
+      "Bozza della Convenzione",
+      "Riepilogo, anche in forma di relazione, delle attività svolte nel precedente periodo di rinnovo: risultati delle attività svolte /eventuali finanziamenti ricevuti/stato di avanzamento dei progetti",
+      "Programma delle attività previste per il periodo di rinnovo",
+      "Estratto del verbale del Consiglio di Dipartimento dei Dipartimenti coinvolti presso Unipa"
+    ]
+  },
+  E: {
+    min: 4,
+    items: [
+      "Programma, anche in forma di relazione, delle attività previste per il periodo individuato",
+      "Estratto verbale Consiglio di Dipartimento dei Dipartimenti coinvolti ai sensi dell'art. 13 comma 2 lettera f",
+      "Delibera del Consiglio di Dipartimento di accettazione della sede amministrativa",
+      "Bozza del Regolamento di funzionamento ai sensi dell'art. 18 del Regolamento sui Centri"
+    ]
+  },
+
+  N: {
+    min: 3,
+    items: [
+      "Relazione consuntiva annuale economica",
+      "Relazione consuntiva annuale scientifica (prodotti delle attività svolte, entità dei finanziamenti ricevuti e stato di avanzamento dei progetti, collaborazioni realizzate e, in generale, risultati delle iniziative attuate)",
+      "Programma delle attività previste per l’anno successivo"
+    ]
+  },
+  P: {
+    min: 2,
+    items: [
+      "Relazione consuntiva annuale scientifica (prodotti delle attività svolte, entità dei finanziamenti ricevuti e stato di avanzamento dei progetti, collaborazioni realizzate e, in generale, risultati delle iniziative attuate)",
+      "Programma delle attività previste per l’anno successivo"
+    ]
+  },
+  Q: {
+    min: 3,
+    items: [
+      "Relazione consuntiva annuale economica",
+      "Relazione consuntiva annuale scientifica (prodotti delle attività svolte, entità dei finanziamenti ricevuti e stato di avanzamento dei progetti, collaborazioni realizzate e, in generale, risultati delle iniziative attuate)",
+      "Programma delle attività previste per l’anno successivo"
+    ]
+  },
+
+};
+
+let PDF_REQUIREMENTS = deepClone(DEFAULT_PDF_REQUIREMENTS);
+
+const DEFAULT_UI_TEXT = {
+  datiGenerali: {
+    labelProtocollo: "Referente per il Centro",
+    placeholderProtocollo: "Nominativo e ruolo",
+    hintProtocollo: "Facoltativo: utile per rintracciare la pratica.",
+    labelDataCompilazione: "Data compilazione",
+    labelNoteGenerali: "Note generali",
+    placeholderNoteGenerali: "Eventuali note per l’istruttoria…",
+  },
+  invio: {
+    // testo mostrato in pagina e nel PDF generato (default)
+    text: "il file PDF generato va inviato ..........",
+    // override per Allegato
+    byAllegato: {
+      A: "Da inviare tramite Titulus indirizzandola a: Magnifico Rettore Università degli Palermo, Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso",
+      B: "Da inviare tramite Titulus indirizzandola a: Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso",
+      C: "Da inviare tramite Titulus indirizzandola a: Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso",
+      E: "Da inviare tramite Titulus indirizzandola a: Magnifico Rettore Università degli Palermo, Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso"
+    }
+  }};
+
+let UI_TEXT = deepClone(DEFAULT_UI_TEXT);
+
+
+
+
+
+
+const el = (id)=>document.getElementById(id);
+
+
+// ===== Config dinamica (Modificabile da Master) =====
+function deepClone(obj){
+  try{ return structuredClone(obj); }catch(e){ return JSON.parse(JSON.stringify(obj)); }
+}
+const CONFIG_STORAGE_KEY = "unipa_centri_config_v1";
+
+function getDefaultConfig(){
+  return {
+    ALLEGATI: deepClone(DEFAULT_ALLEGATI),
+    CENTRI: deepClone(DEFAULT_CENTRI),
+    PDF_REQUIREMENTS: deepClone(DEFAULT_PDF_REQUIREMENTS),
+    UI_TEXT: deepClone(DEFAULT_UI_TEXT)
+  };
+}
+
+function applyConfig(cfg){
+  // validazione minimale
+  if(!cfg || typeof cfg !== "object") throw new Error("Config non valida.");
+  if(!cfg.ALLEGATI || !cfg.CENTRI || !cfg.PDF_REQUIREMENTS) throw new Error("Config incompleta (ALLEGATI/CENTRI/PDF_REQUIREMENTS).");
+  ALLEGATI = deepClone(cfg.ALLEGATI);
+  CENTRI = deepClone(cfg.CENTRI);
+  PDF_REQUIREMENTS = deepClone(cfg.PDF_REQUIREMENTS);
+  UI_TEXT = deepClone(cfg.UI_TEXT || DEFAULT_UI_TEXT);
+  applyUiText();
+}
+
+function loadConfig(){
+  const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+  if(!raw) return;
+  const cfg = JSON.parse(raw);
+  applyConfig(cfg);
+}
+
+function saveConfig(){
+  const cfg = { ALLEGATI, CENTRI, PDF_REQUIREMENTS, UI_TEXT };
+  localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(cfg));
+}
+
+function resetConfig(){
+  applyConfig(getDefaultConfig());
+  localStorage.removeItem(CONFIG_STORAGE_KEY);
+}
+
+function getInvioTextForAllegato(aKey){
+  const inv = (UI_TEXT && UI_TEXT.invio) ? UI_TEXT.invio : {};
+  const map = inv.byAllegato && typeof inv.byAllegato === "object" ? inv.byAllegato : null;
+  if(aKey && map && typeof map[aKey] === "string") return map[aKey];
+  return (typeof inv.text === "string") ? inv.text : "il file PDF generato va inviato ..........";
+}
+
+function applyUiText(){
+  // Dati generali
+  const dg = (UI_TEXT && UI_TEXT.datiGenerali) ? UI_TEXT.datiGenerali : {};
+  const inv = (UI_TEXT && UI_TEXT.invio) ? UI_TEXT.invio : {};
+
+  const lblP = document.getElementById("lblProtocollo");
+  if(lblP && dg.labelProtocollo) lblP.textContent = dg.labelProtocollo;
+
+  const inpP = document.getElementById("protocollo");
+  if(inpP && dg.placeholderProtocollo) inpP.placeholder = dg.placeholderProtocollo;
+
+  // hint sotto protocollo: è il primo .hint dentro il box del protocollo; meglio selezione stabile:
+  const protoRow = lblP ? lblP.closest(".row") : null;
+  const protoHint = protoRow ? protoRow.querySelector(".hint") : null;
+  if(protoHint && typeof dg.hintProtocollo === "string") protoHint.textContent = dg.hintProtocollo;
+
+  const lblD = document.getElementById("lblDataCompilazione");
+  if(lblD && dg.labelDataCompilazione) lblD.textContent = dg.labelDataCompilazione;
+
+  const lblN = document.getElementById("lblNoteGenerali");
+  if(lblN && dg.labelNoteGenerali) lblN.textContent = dg.labelNoteGenerali;
+
+  const txtN = document.getElementById("noteGenerali");
+  if(txtN && dg.placeholderNoteGenerali) txtN.placeholder = dg.placeholderNoteGenerali;
+
+  // Invio Allegati
+  const invBox = document.getElementById("invioTextBox");
+  const aKey = (document.getElementById("allegato")?.value) || "";
+  if(invBox) invBox.textContent = getInvioTextForAllegato(aKey);
+}
+
+// ===== Fine Config dinamica =====
+const tipoCentroEl = el("tipoCentro");
+const allegatoEl = el("allegato");
+const dynEl = el("dynamicFields");
+const statusBox = el("statusBox");
+
+const fileUploads = el("fileUploads");
+const fileList = el("fileList");
+const btnAddFiles = el("btnAddFiles");
+const btnClearFiles = el("btnClearFiles");
+const requiredPdfInfo = el("requiredPdfInfo");
+// --- Riferimenti sezioni (per ALLEGATO B: rimozione "Campi Allegato" e rinumerazione) ---
+const campiTitleH3 = [...document.querySelectorAll(".section-title h3")]
+  .find(h => h.textContent.trim().includes("Informazioni pratica"));
+const campiSectionTitle = campiTitleH3 ? campiTitleH3.closest(".section-title") : null;
+const campiSectionDyn = dynEl; // contenuto dinamico
+const hrBeforeCampi = campiSectionTitle ? campiSectionTitle.previousElementSibling : null; // dovrebbe essere .hr
+const hrAfterCampi = campiSectionDyn ? campiSectionDyn.nextElementSibling : null; // dovrebbe essere .hr
+
+const pdfTitleH3 = [...document.querySelectorAll(".section-title h3")]
+  .find(h => h.textContent.trim().includes("Allegati PDF"));
+const riepilogoTitleH3 = [...document.querySelectorAll(".section-title h3")]
+  .find(h => h.textContent.trim().includes("Riepilogo"));
+const invioTitleH3 = [...document.querySelectorAll(".section-title h3")]
+  .find(h => h.textContent.trim().includes("Invio Allegati"));
+
+function applySectionLayoutForAllegato(){
+  const aKey = allegatoEl.value;
+  const isB = (aKey === "B");
+
+  // Nascondi/mostra sezione "Informazioni pratica" SOLO per B
+  const disp = isB ? "none" : "";
+
+  if(campiSectionTitle) campiSectionTitle.style.display = disp;
+  if(campiSectionDyn) campiSectionDyn.style.display = disp;
+
+  // gestione linee di separazione:
+  // - per B teniamo visibile la linea prima di "Allegati PDF"
+  // - nascondiamo solo quella subito dopo la sezione nascosta
+  if(isB){
+    if(hrBeforeCampi && hrBeforeCampi.classList?.contains("hr"))
+      hrBeforeCampi.style.display = "";   // mantiene la separazione
+    if(hrAfterCampi && hrAfterCampi.classList?.contains("hr"))
+      hrAfterCampi.style.display = "none";
+  }else{
+    if(hrBeforeCampi && hrBeforeCampi.classList?.contains("hr"))
+      hrBeforeCampi.style.display = "";
+    if(hrAfterCampi && hrAfterCampi.classList?.contains("hr"))
+      hrAfterCampi.style.display = "";
+  }
+
+  // Rinumerazione titoli sezioni (solo visuale) per B:
+  // 1 Selezione, 2 Dati generali, 3 Allegati PDF, 4 Riepilogo, 5 Invio Allegati
+  if(pdfTitleH3) pdfTitleH3.textContent = isB ? "3. Allegati PDF" : "4. Allegati PDF";
+  if(riepilogoTitleH3) riepilogoTitleH3.textContent = isB ? "4. Riepilogo" : "5. Riepilogo";
+  if(invioTitleH3) invioTitleH3.textContent = isB ? "5. Invio Allegati" : "6. Invio Allegati";
+}
+
+
+// Lista persistente di PDF accodati
+let attachedPdfs = [];
+
+const summaryChips = el("summaryChips");
+const allegatoHint = el("allegatoHint");
+
+const STORAGE_KEY = "unipa_centri_allegati_v1";
+
+function setTheme(theme){
+  document.body.setAttribute("data-theme", theme);
+  el("btnTheme").textContent = "Tema: " + (theme==="light" ? "Chiaro" : "Scuro");
+}
+el("btnTheme").addEventListener("click", ()=>{
+  const cur = document.body.getAttribute("data-theme") || "dark";
+  setTheme(cur==="dark" ? "light" : "dark");
+});
+
+function populateAllegati(){
+  const c = tipoCentroEl.value;
+  allegatoEl.innerHTML = "";
+  dynEl.innerHTML = `<div class="hint">Seleziona un Allegato per iniziare la compilazione.</div>`;
+  if(!c){
+    allegatoEl.disabled = true;
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "— Seleziona prima il tipo di centro —";
+    allegatoEl.appendChild(opt);
+    updatePdfRequirements();
+    updateStatus();
+    updateSummary();
+    return;
+  }
+  allegatoEl.disabled = false;
+  const opt0 = document.createElement("option");
+  opt0.value = "";
+  opt0.textContent = "— Seleziona —";
+  allegatoEl.appendChild(opt0);
+
+  const allowed = CENTRI[c].allegati;
+  for(const k of allowed){
+    const a = ALLEGATI[k];
+    const opt = document.createElement("option");
+    opt.value = k;
+    opt.textContent = `${k} – ${a.title.replace(/^Allegato\\s+[A-Z]\\s+–\\s+/,'')}`;
+    allegatoEl.appendChild(opt);
+  }
+  allegatoHint.textContent = `Allegati disponibili per: ${CENTRI[c].label}.`;
+  updatePdfRequirements();
+  updatePdfRequirements();
+  setInvioBoxByAllegato(allegatoEl.value);
+  updateStatus();
+  updateSummary();
+}
+
+tipoCentroEl.addEventListener("change", ()=>{
+  populateAllegati();
+});
+
+
+function setInvioBoxByAllegato(aKey){
+  const box = document.getElementById("invioTextBox");
+  if(!box) return;
+
+  let txt = "il file PDF generato va inviato ..........";
+
+  if(aKey === "A"){
+    txt = "Da inviare tramite Titulus indirizzandola a: Magnifico Rettore Università degli Palermo, Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso";
+  }else if(aKey === "B"){
+    txt = "Da inviare tramite Titulus indirizzandola a: Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso";
+  }else if(aKey === "C"){
+    txt = "Da inviare tramite Titulus indirizzandola a: Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso";
+  }else if(aKey === "E"){
+    txt = "Da inviare tramite Titulus indirizzandola a: Magnifico Rettore Università degli Palermo, Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso";
+  }else if(aKey === "H" || aKey === "L"){
+    txt = "Da inviare tramite Titulus indirizzandola a: Magnifico Rettore Università degli Palermo, Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso";
+  }else if(aKey === "N" || aKey === "P" || aKey === "Q" || aKey === "F"){
+    txt = "Da inviare tramite Titulus indirizzandola a: Dr.ssa Valeria Calogera La Bella, Dr. Francesco Rizzuto, Isabella Rosso";
+  }
+
+  box.textContent = txt;
+}
+
+
+allegatoEl.addEventListener("change", ()=>{
+  renderFields();
+  if(allegatoEl.value === "C"){
+    alert("Da inviare almeno tre mesi prima della scadenza");
+  }
+
+  if(["N","P","Q"].includes(allegatoEl.value)){
+    alert("Da compilare entro il 28 febbraio di ogni anno successivo all’anno oggetto di monitoraggio.\n\nI Centri avranno cura di pubblicare sul proprio sito la relazione consuntiva annuale sulle attività del Centro e il programma delle attività previste per l’anno successivo.");
+  }
+  updatePdfRequirements();
+  
+  setInvioBoxByAllegato(allegatoEl.value);
+  updateStatus();
+  updateSummary();
+});
+
+function updateStatus(msg){
+  const c = tipoCentroEl.value;
+  const a = allegatoEl.value;
+  if(msg){
+    statusBox.className = "status err";
+    statusBox.textContent = msg;
+    return;
+  }
+  if(!c){
+    statusBox.className = "status";
+    statusBox.textContent = "In attesa di selezioni…";
+    return;
+  }
+  if(!a){
+    statusBox.className = "status";
+    statusBox.textContent = "Seleziona un Allegato…";
+    return;
+  }
+  statusBox.className = "status ok";
+  statusBox.textContent = "Pronto per compilazione.";
+}
+
+function updateSummary(){
+  const c = tipoCentroEl.value;
+  const a = allegatoEl.value;
+
+  const cLabel = c ? CENTRI[c].label : "—";
+  const aLabel = a ? ALLEGATI[a].title : "—";
+
+  summaryChips.innerHTML = `
+    <div class="chip"><strong>Centro:</strong> ${escapeHtml(cLabel)}</div>
+    <div class="chip"><strong>Allegato:</strong> ${escapeHtml(aLabel)}</div>
+    <div class="chip"><strong>File PDF:</strong> ${getSelectedFiles().length}</div>
+  `;
+}
+
+
+function updatePdfRequirements(){
+  const aKey = allegatoEl.value;
+
+  // layout e rinumerazione (solo UI) per Allegato B
+  applySectionLayoutForAllegato();
+
+  const req = aKey ? PDF_REQUIREMENTS[aKey] : null;
+
+  // Mostra/nascondi avviso requisiti PDF (se presente in config)
+  if(requiredPdfInfo){
+    if(req && typeof req.min === "number"){
+      requiredPdfInfo.style.display = "block";
+      const items = Array.isArray(req.items) ? req.items : [];
+      const itemsHtml = items.map(x => `• ${escapeHtml(x)}`).join("<br>");
+      requiredPdfInfo.innerHTML = `
+        <strong>Documenti da allegare</strong><br>
+        ${itemsHtml || ""}
+      `;
+    } else {
+      requiredPdfInfo.style.display = "none";
+      requiredPdfInfo.innerHTML = "";
+    }
+  }
+}
+
+function renderFields(){
+  const k = allegatoEl.value;
+  if(!k){
+    dynEl.innerHTML = `<div class="hint">Seleziona un Allegato per iniziare la compilazione.</div>`;
+    return;
+  }
+  const model = ALLEGATI[k];
+  const frag = document.createDocumentFragment();
+
+  const head = document.createElement("div");
+  head.className = "warn";
+  head.innerHTML = `<strong>${escapeHtml(model.title)}</strong><br>
+                    Compila i campi pertinenti e carica i PDF richiesti nella sezione “Allegati PDF”.`;
+  frag.appendChild(head);
+
+  const container = document.createElement("div");
+  container.style.marginTop = "12px";
+
+  for(const f of model.fields){
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const lab = document.createElement("label");
+    lab.setAttribute("for", "f_"+f.id);
+    lab.textContent = (f.required ? "• " : "") + f.label;
+    row.appendChild(lab);
+
+    const box = document.createElement("div");
+    let input;
+
+    if(f.type === "textarea"){
+      input = document.createElement("textarea");
+      input.placeholder = "Inserisci testo…";
+    } else if(f.type === "number"){
+      input = document.createElement("input");
+      input.type = "number";
+      input.placeholder = "Es. 3";
+      if(Number.isFinite(f.min)) input.min = String(f.min);
+      if(Number.isFinite(f.max)) input.max = String(f.max);
+    } else if(f.type === "select"){
+      input = document.createElement("select");
+      for(const opt of f.options){
+        const o = document.createElement("option");
+        o.value = opt.v;
+        o.textContent = opt.t;
+        input.appendChild(o);
+      }
+    } else {
+      input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "Inserisci…";
+    }
+
+    input.id = "f_"+f.id;
+    input.dataset.fieldId = f.id;
+    input.dataset.required = f.required ? "1" : "0";
+    input.addEventListener("input", updateSummary);
+
+    box.appendChild(input);
+
+    const hint = document.createElement("div");
+    hint.className = "hint";
+    hint.textContent = f.required ? "Obbligatorio." : "Facoltativo.";
+    box.appendChild(hint);
+
+    row.appendChild(box);
+    container.appendChild(row);
+  }
+
+  frag.appendChild(container);
+  dynEl.innerHTML = "";
+  dynEl.appendChild(frag);
+}
+
+/* ===== Allegati PDF: accoda più file anche in momenti diversi ===== */
+btnAddFiles.addEventListener("click", ()=> {
+  fileUploads.click();
+});
+
+btnClearFiles.addEventListener("click", ()=> {
+  attachedPdfs = [];
+  fileUploads.value = "";
+  renderFileList();
+  updateSummary();
+  updateStatus();
+});
+
+fileUploads.addEventListener("change", ()=>{
+  const files = Array.from(fileUploads.files || []);
+  if(!files.length) return;
+
+  const bad = files.filter(f => !(f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")));
+  if(bad.length){
+    updateStatus("Caricamento rifiutato: sono ammessi solo file PDF.");
+    fileUploads.value = "";
+    return;
+  }
+
+  for(const f of files){
+    const dup = attachedPdfs.some(x => x.name === f.name && x.size === f.size);
+    if(!dup) attachedPdfs.push(f);
+  }
+
+  fileUploads.value = ""; // consente aggiunte successive anche dello stesso file (se necessario)
+
+  renderFileList();
+  updateSummary();
+  updateStatus();
+});
+
+function renderFileList(){
+  if(!attachedPdfs.length){
+    fileList.textContent = "Nessun file caricato.";
+    return;
+  }
+
+  fileList.innerHTML = attachedPdfs.map((f,i)=> `
+    <div style="display:flex; gap:10px; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border);">
+      <div style="min-width:0;">
+        <div style="font-size:12px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          ${i+1}. ${escapeHtml(f.name)}
+        </div>
+        <div style="font-size:12px; color:var(--muted);">${formatBytes(f.size)}</div>
+      </div>
+      <button type="button" class="btn-danger" style="padding:8px 10px; border-radius:10px;" onclick="removePdfAt(${i})">Rimuovi</button>
+    </div>
+  `).join("");
+}
+
+window.removePdfAt = function(idx){
+  attachedPdfs.splice(idx, 1);
+  renderFileList();
+  updateSummary();
+};
+
+function getSelectedFiles(){
+  return attachedPdfs.slice();
+}
+/* ===== Fine Allegati PDF ===== */
+
+el("btnSave").addEventListener("click", ()=>{
+  const payload = collectState();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  statusBox.className = "status ok";
+  statusBox.textContent = "Bozza salvata.";
+});
+
+el("btnLoad").addEventListener("click", ()=>{
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw){
+    updateStatus("Nessuna bozza trovata nel browser.");
+    return;
+  }
+  try{
+    const payload = JSON.parse(raw);
+    applyState(payload);
+    statusBox.className = "status ok";
+    statusBox.textContent = "Bozza recuperata.";
+  } catch(e){
+    updateStatus("Bozza non leggibile (JSON corrotto).");
+  }
+});
+
+el("btnClear").addEventListener("click", ()=>{
+  tipoCentroEl.value = "";
+  populateAllegati();
+  el("protocollo").value = "";
+  el("dataCompilazione").value = "";
+  el("noteGenerali").value = "";
+
+  attachedPdfs = [];
+  fileUploads.value = "";
+  renderFileList();
+
+  updatePdfRequirements();
+  updateStatus();
+  updateSummary();
+});
+
+el("btnPDF").addEventListener("click", async ()=>{
+  try{
+    const c = tipoCentroEl.value;
+    const aKey = allegatoEl.value;
+    if(!c){ updateStatus("Seleziona il tipo di centro."); return; }
+    if(!aKey){ updateStatus("Seleziona un Allegato."); return; }
+
+    const missing = [];
+    const model = ALLEGATI[aKey];
+
+    // Per Allegato B: la sezione "Campi Allegato selezionato" è rimossa, quindi non validiamo i campi.
+    if(aKey !== "B"){
+      for(const f of model.fields){
+        if(!f.required) continue;
+        const node = document.getElementById("f_"+f.id);
+        if(!node) continue;
+        const v = (node.value || "").trim();
+        if(!v) missing.push(f.label);
+
+        if(f.type==="number" && v){
+          const n = Number(v);
+          if(Number.isFinite(f.min) && n < f.min) missing.push(`${f.label} (min ${f.min})`);
+          if(Number.isFinite(f.max) && n > f.max) missing.push(`${f.label} (max ${f.max})`);
+        }
+      }
+      if(missing.length){
+        updateStatus("Compilazione incompleta: verifica i campi obbligatori.");
+        alert("Mancano/sono non validi i seguenti campi obbligatori:\n\n- " + missing.join("\n- "));
+        return;
+      }
+    }
+
+    const files = getSelectedFiles();
+    if(PDF_REQUIREMENTS[aKey]){
+      const minReq = PDF_REQUIREMENTS[aKey].min;
+      if(files.length < minReq){
+        updateStatus(`Per l’Allegato ${aKey} caricare almeno ${minReq} PDF obbligatori.`);
+        alert(
+          `Per l’Allegato ${aKey} sono obbligatori almeno ${minReq} PDF:\n\n- ` +
+          PDF_REQUIREMENTS[aKey].items.join("\n- ")
+        );
+        return;
+      }
+    }
+    const bad = files.filter(f => !(f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")));
+    if(bad.length){ updateStatus("Caricamento rifiutato: sono ammessi solo file PDF."); return; }
+
+    statusBox.className = "status";
+    statusBox.textContent = "Generazione PDF in corso…";
+
+    const pdfBytes = await buildMergedPdf();
+    const nameSafe = sanitizeFilename(`Allegato_${aKey}_Centri_UNIPA_${todayYMD()}.pdf`);
+    downloadBytes(pdfBytes, nameSafe);
+
+    statusBox.className = "status ok";
+    statusBox.textContent = "PDF generato.";
+  } catch(err){
+    console.error(err);
+    updateStatus("Errore in generazione PDF. Vedi console.");
+    alert("Errore durante la generazione del PDF.\n\nDettagli: " + (err?.message || String(err)));
+  }
+});
+
+async function buildMergedPdf(){
+  const { PDFDocument, StandardFonts, rgb } = PDFLib;
+
+  const c = tipoCentroEl.value;
+  const aKey = allegatoEl.value;
+  const model = ALLEGATI[aKey];
+
+  const outPdf = await PDFDocument.create();
+  outPdf.setTitle(model.title);
+
+  const font = await outPdf.embedFont(StandardFonts.Helvetica);
+  const fontBold = await outPdf.embedFont(StandardFonts.HelveticaBold);
+
+  const margin = 44;
+  const pageW = 595.28;
+  const pageH = 841.89;
+
+  function addPage(){ return outPdf.addPage([pageW, pageH]); }
+
+  function drawWrapped(page, text, x, y, maxWidth, size=11, bold=false){
+    const f = bold ? fontBold : font;
+    const words = String(text || "").split(/\s+/).filter(Boolean);
+    const lines = [];
+    let cur = "";
+    const widthOf = (s)=> f.widthOfTextAtSize(s, size);
+
+    for(const w of words){
+      const test = cur ? (cur + " " + w) : w;
+      if(widthOf(test) <= maxWidth){
+        cur = test;
+      } else {
+        if(cur) lines.push(cur);
+        cur = w;
+      }
+    }
+    if(cur) lines.push(cur);
+
+    for(const ln of lines){
+      page.drawText(ln, { x, y, size, font:f, color: rgb(0,0,0) });
+      y -= (size + 3);
+    }
+    return y;
+  }
+
+  let page = addPage();
+  let y = pageH - margin;
+
+  page.drawText("Università degli Studi di Palermo", { x: margin, y, size: 12, font: fontBold, color: rgb(0,0,0) });
+  y -= 18;
+  y = drawWrapped(page, "Riepilogo pratica", margin, y, pageW - margin*2, 16, true);
+  y -= 8;
+
+  const protocollo = el("protocollo").value.trim();
+  const dataComp = el("dataCompilazione").value;
+  const noteGen = el("noteGenerali").value.trim();
+
+  y = drawWrapped(page, `Tipo di centro: ${CENTRI[c].label}`, margin, y, pageW - margin*2, 12, true);
+  y = drawWrapped(page, `Allegato: ${model.title}`, margin, y, pageW - margin*2, 11, true);
+  y -= 6;
+  if(protocollo) y = drawWrapped(page, `Referente per il Centro: ${protocollo}`, margin, y, pageW - margin*2, 11, false);
+  if(dataComp) y = drawWrapped(page, `Data compilazione: ${dataComp}`, margin, y, pageW - margin*2, 11, false);
+  y -= 8;
+
+  if(noteGen){
+    y = drawWrapped(page, "Note generali:", margin, y, pageW - margin*2, 11, true);
+    y = drawWrapped(page, noteGen, margin, y, pageW - margin*2, 11, false);
+    y -= 6;
+  }
+
+  y -= 6;
+
+  if(aKey !== "B"){
+    y = drawWrapped(page, "Dati Allegato:", margin, y, pageW - margin*2, 12, true);
+    y -= 4;
+
+    for(const f of model.fields){
+      const node = document.getElementById("f_"+f.id);
+      const v = node ? (node.value || "").trim() : "";
+      const label = f.label + (f.required ? " (obbl.)" : "");
+      y = drawWrapped(page, label, margin, y, pageW - margin*2, 10, true);
+      y = drawWrapped(page, v || "—", margin, y, pageW - margin*2, 10, false);
+      y -= 6;
+      if(y < 90){
+        page = addPage();
+        y = pageH - margin;
+      }
+    }
+  } else {
+    y = drawWrapped(page, "Dati Allegato:", margin, y, pageW - margin*2, 12, true);
+    y = drawWrapped(page, "Per l’Allegato B non è prevista la compilazione dei campi: caricare i PDF obbligatori.", margin, y, pageW - margin*2, 11, false);
+    y -= 6;
+  }
+
+  const files = getSelectedFiles();
+  y -= 4;
+  y = drawWrapped(page, `Allegati PDF caricati: ${files.length}`, margin, y, pageW - margin*2, 12, true);
+
+  if(PDF_REQUIREMENTS[aKey]){
+    y = drawWrapped(page, `Documenti da allegare (minimo ${PDF_REQUIREMENTS[aKey].min} PDF):`, margin, y, pageW - margin*2, 11, true);
+    for(const item of (PDF_REQUIREMENTS[aKey]?.items || [])){
+      y = drawWrapped(page, `• ${item}`, margin, y, pageW - margin*2, 10, false);
+      if(y < 80){
+        page = addPage();
+        y = pageH - margin;
+      }
+    }
+    y -= 6;
+  }
+
+  if(files.length){
+    for(const f of files){
+      y = drawWrapped(page, `- ${f.name} (${formatBytes(f.size)})`, margin, y, pageW - margin*2, 10, false);
+      if(y < 80){
+        page = addPage();
+        y = pageH - margin;
+      }
+    }
+  } else {
+    y = drawWrapped(page, "Nessun file PDF caricato.", margin, y, pageW - margin*2, 10, false);
+  }
+
+  y -= 10;
+  const invioLabel = (aKey === "B") ? "5. Invio Allegati" : "6. Invio Allegati";
+  y = drawWrapped(page, invioLabel, margin, y, pageW - margin*2, 12, true);
+  y = drawWrapped(page, getInvioTextForAllegato(aKey), margin, y, pageW - margin*2, 11, false);
+
+  for(const f of files){
+    const ab = await f.arrayBuffer();
+    const src = await PDFDocument.load(ab);
+    const copied = await outPdf.copyPages(src, src.getPageIndices());
+    for(const p of copied){
+      outPdf.addPage(p);
+    }
+  }
+
+  return await outPdf.save();
+}
+
+function collectState(){
+  const state = {
+    tipoCentro: tipoCentroEl.value,
+    allegato: allegatoEl.value,
+    protocollo: el("protocollo").value,
+    dataCompilazione: el("dataCompilazione").value,
+    noteGenerali: el("noteGenerali").value,
+    fields: {}
+  };
+  const aKey = allegatoEl.value;
+  if(aKey){
+    const model = ALLEGATI[aKey];
+    for(const f of model.fields){
+      const node = document.getElementById("f_"+f.id);
+      if(node) state.fields[f.id] = node.value;
+    }
+  }
+  return state;
+}
+
+function applyState(state){
+  tipoCentroEl.value = state.tipoCentro || "";
+  populateAllegati();
+  allegatoEl.value = state.allegato || "";
+  renderFields();
+
+  el("protocollo").value = state.protocollo || "";
+  el("dataCompilazione").value = state.dataCompilazione || "";
+  el("noteGenerali").value = state.noteGenerali || "";
+
+  const aKey = allegatoEl.value;
+  if(aKey && state.fields){
+    const model = ALLEGATI[aKey];
+    for(const f of model.fields){
+      const node = document.getElementById("f_"+f.id);
+      if(node && (f.id in state.fields)) node.value = state.fields[f.id] ?? "";
+    }
+  }
+  updateStatus();
+  updateSummary();
+}
+
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function formatBytes(bytes){
+  const b = Number(bytes || 0);
+  if(b < 1024) return b + " B";
+  const kb = b/1024;
+  if(kb < 1024) return kb.toFixed(1) + " KB";
+  const mb = kb/1024;
+  return mb.toFixed(1) + " MB";
+}
+
+function downloadBytes(bytes, filename){
+  const blob = new Blob([bytes], { type:"application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+function sanitizeFilename(name){
+  return name.replace(/[\\/:*?"<>|]+/g, "_").replace(/\s+/g, "_").slice(0, 140);
+}
+function todayYMD(){
+  const d = new Date();
+  const pad = (n)=> String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+}
+
+
+// ===== Modalità Master: login + editor configurazione =====
+const MASTER_USER = "Master";
+const MASTER_PASS = "?Cerbero01";
+const MASTER_SESSION_KEY = "unipa_master_session_v1";
+
+const btnMaster = el("btnMaster");
+const masterPanel = el("masterPanel");
+const masterOverlay = el("masterLoginOverlay");
+const btnMasterClose = el("btnMasterClose");
+const btnMasterLogin = el("btnMasterLogin");
+const masterUser = el("masterUser");
+const masterPass = el("masterPass");
+const masterMsg = el("masterLoginMsg");
+
+const cfgJson = el("cfgJson");
+const cfgStatus = el("cfgStatus");
+const btnCfgApply = el("btnCfgApply");
+const btnCfgSave = el("btnCfgSave");
+const btnCfgReset = el("btnCfgReset");
+const btnCfgExport = el("btnCfgExport");
+const btnCfgImport = el("btnCfgImport");
+const cfgImportFile = el("cfgImportFile");
+
+function isMaster(){
+  return sessionStorage.getItem(MASTER_SESSION_KEY) === "1";
+}
+
+function openMasterLogin(){
+  masterMsg.textContent = "";
+  masterUser.value = "Master";
+  masterPass.value = "";
+  masterOverlay.style.display = "block";
+  masterUser.focus();
+}
+
+function closeMasterLogin(){
+  masterOverlay.style.display = "none";
+}
+
+function showMasterPanel(){
+  masterPanel.style.display = "block";
+  // Precompila textarea
+  cfgJson.value = JSON.stringify({ ALLEGATI, CENTRI, PDF_REQUIREMENTS, UI_TEXT }, null, 2);
+  cfgStatus.textContent = "Stato: modalità Master attiva.";
+
+  // Editor guidato
+  workingConfig = JSON.parse(cfgJson.value);
+  if(!window.__guidedWired){ wireGuidedEvents(); window.__guidedWired = true; }
+  if(!window.__staticTextWired){ wireStaticTextsEditor(); window.__staticTextWired = true; }
+  renderGuided();
+  renderStaticTextsEditor();
+}
+
+function hideMasterPanel(){
+  masterPanel.style.display = "none";
+}
+
+btnMaster?.addEventListener("click", ()=>{
+  if(isMaster()){
+    // toggle panel
+    if(masterPanel.style.display === "none" || !masterPanel.style.display){
+      showMasterPanel();
+    } else {
+      hideMasterPanel();
+    }
+  } else {
+    openMasterLogin();
+  }
+});
+
+btnMasterClose?.addEventListener("click", closeMasterLogin);
+masterOverlay?.addEventListener("click", (e)=>{
+  if(e.target === masterOverlay) closeMasterLogin();
+});
+
+btnMasterLogin?.addEventListener("click", ()=>{
+  const u = (masterUser.value || "").trim();
+  const p = (masterPass.value || "").trim();
+  if(u === MASTER_USER && p === MASTER_PASS){
+    sessionStorage.setItem(MASTER_SESSION_KEY, "1");
+    masterMsg.textContent = "Accesso effettuato.";
+    closeMasterLogin();
+    showMasterPanel();
+  } else {
+    masterMsg.textContent = "Credenziali non valide.";
+  }
+});
+
+
+// ===== Editor guidato (Master): UI -> Config =====
+let guidedKey = null;
+let workingConfig = null;
+
+const guidedAllegato = el("guidedAllegato");
+const guidedTitle = el("guidedTitle");
+const guidedFieldsContainer = el("guidedFieldsContainer");
+const btnGuidedAddField = el("btnGuidedAddField");
+const btnGuidedRebuildIds = el("btnGuidedRebuildIds");
+
+const guidedPdfMin = el("guidedPdfMin");
+const guidedPdfItemsContainer = el("guidedPdfItemsContainer");
+const btnGuidedAddPdfItem = el("btnGuidedAddPdfItem");
+const btnGuidedRemovePdfReq = el("btnGuidedRemovePdfReq");
+
+function getConfigFromRuntime(){
+  return { ALLEGATI, CENTRI, PDF_REQUIREMENTS, UI_TEXT };
+}
+
+function setTextareaFromWorking(){
+  cfgJson.value = JSON.stringify(workingConfig, null, 2);
+}
+
+function ensureWorkingConfig(){
+  if(workingConfig) return;
+  try{
+    workingConfig = JSON.parse(cfgJson.value || "{}");
+    if(!workingConfig.ALLEGATI) throw new Error("no ALLEGATI");
+  }catch(e){
+    workingConfig = deepClone(getConfigFromRuntime());
+  }
+  setTextareaFromWorking();
+}
+
+function listAllegatiKeys(cfg){
+  return Object.keys(cfg.ALLEGATI || {}).sort();
+}
+
+function uidSlug(s){
+  return String(s||"").toLowerCase()
+    .replace(/à|á|â|ä/g,'a').replace(/è|é|ê|ë/g,'e').replace(/ì|í|î|ï/g,'i')
+    .replace(/ò|ó|ô|ö/g,'o').replace(/ù|ú|û|ü/g,'u')
+    .replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')
+    .slice(0,32) || "campo";
+}
+
+function rebuildFieldIds(fields){
+  const seen = new Set();
+  for(const f of fields){
+    let base = uidSlug(f.label);
+    let id = base;
+    let n = 2;
+    while(seen.has(id)) { id = base + "_" + n; n++; }
+    f.id = id;
+    seen.add(id);
+  }
+}
+
+function renderGuided(){
+  ensureWorkingConfig();
+  const keys = listAllegatiKeys(workingConfig);
+
+  guidedAllegato.innerHTML = keys.map(k=> `<option value="${escapeHtml(k)}">${escapeHtml(k)} – ${escapeHtml(workingConfig.ALLEGATI[k]?.title || "")}</option>`).join("");
+  guidedKey = guidedKey && keys.includes(guidedKey) ? guidedKey : (keys[0] || null);
+  guidedAllegato.value = guidedKey || "";
+
+  renderGuidedForKey(guidedKey);
+}
+
+function renderGuidedForKey(k){
+  if(!k) return;
+  ensureWorkingConfig();
+
+  const a = workingConfig.ALLEGATI[k];
+  guidedTitle.value = a?.title || "";
+
+  const fields = Array.isArray(a?.fields) ? a.fields : [];
+  guidedFieldsContainer.innerHTML = fields.map((f, idx)=> {
+    const t = f.type || "text";
+    const min = (typeof f.min === "number") ? f.min : "";
+    const max = (typeof f.max === "number") ? f.max : "";
+    const req = f.required ? "checked" : "";
+    return `
+      <div style="display:grid; grid-template-columns: 1.2fr .9fr .8fr .6fr .6fr .7fr; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);">
+        <input data-gf="label" data-idx="${idx}" type="text" value="${escapeHtml(f.label||"")}" placeholder="Etichetta (label)" />
+        <input data-gf="id" data-idx="${idx}" type="text" value="${escapeHtml(f.id||"")}" placeholder="id" />
+        <select data-gf="type" data-idx="${idx}">
+          ${["text","textarea","number"].map(x=> `<option value="${x}" ${x===t?"selected":""}>${x}</option>`).join("")}
+        </select>
+        <input data-gf="min" data-idx="${idx}" type="number" value="${min}" placeholder="min" />
+        <input data-gf="max" data-idx="${idx}" type="number" value="${max}" placeholder="max" />
+        <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+          <label style="padding:0; display:flex; gap:6px; align-items:center; color:var(--muted); font-size:12px;">
+            <input data-gf="required" data-idx="${idx}" type="checkbox" ${req} /> Obbl.
+          </label>
+          <button type="button" class="btn-danger" style="padding:8px 10px; border-radius:10px;" onclick="guidedRemoveField(${idx})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join("") || `<div class="small">Nessun campo presente.</div>`;
+
+  const pr = workingConfig.PDF_REQUIREMENTS ? workingConfig.PDF_REQUIREMENTS[k] : null;
+  guidedPdfMin.value = pr && typeof pr.min === "number" ? pr.min : "";
+  const items = pr && Array.isArray(pr.items) ? pr.items : [];
+  guidedPdfItemsContainer.innerHTML = items.map((it, idx)=> `
+    <div style="display:flex; gap:10px; align-items:center; padding:6px 0; border-bottom:1px solid var(--border);">
+      <input data-gp="item" data-idx="${idx}" type="text" value="${escapeHtml(it||"")}" style="flex:1;" />
+      <button type="button" class="btn-danger" style="padding:8px 10px; border-radius:10px;" onclick="guidedRemovePdfItem(${idx})">Rimuovi</button>
+    </div>
+  `).join("") || `<div class="small">Nessuna voce. (Aggiungi con il pulsante sotto)</div>`;
+
+  setTextareaFromWorking();
+  cfgStatus.textContent = "Stato: modifiche guidate pronte (non applicate finché non premi Applica/Salva).";
+}
+
+window.guidedRemoveField = function(idx){
+  ensureWorkingConfig();
+  const a = workingConfig.ALLEGATI[guidedKey];
+  a.fields = (a.fields || []).filter((_,i)=> i !== idx);
+  renderGuidedForKey(guidedKey);
+};
+
+window.guidedRemovePdfItem = function(idx){
+  ensureWorkingConfig();
+  if(!workingConfig.PDF_REQUIREMENTS) workingConfig.PDF_REQUIREMENTS = {};
+  const pr = workingConfig.PDF_REQUIREMENTS[guidedKey];
+  if(!pr || !Array.isArray(pr.items)) return;
+  pr.items.splice(idx, 1);
+  renderGuidedForKey(guidedKey);
+};
+
+function wireGuidedEvents(){
+  guidedAllegato?.addEventListener("change", ()=>{
+    guidedKey = guidedAllegato.value;
+    renderGuidedForKey(guidedKey);
+  });
+
+  guidedTitle?.addEventListener("input", ()=>{
+    ensureWorkingConfig();
+    workingConfig.ALLEGATI[guidedKey].title = guidedTitle.value;
+    setTextareaFromWorking();
+  });
+
+  guidedFieldsContainer?.addEventListener("input", (e)=>{
+    const t = e.target;
+    const idx = Number(t?.dataset?.idx);
+    const gf = t?.dataset?.gf;
+    if(!Number.isFinite(idx) || !gf) return;
+
+    ensureWorkingConfig();
+    const f = workingConfig.ALLEGATI[guidedKey].fields[idx];
+    if(!f) return;
+
+    if(gf === "label") f.label = t.value;
+    if(gf === "id") f.id = t.value;
+    if(gf === "min") {
+      if(t.value === "") delete f.min; else f.min = Number(t.value);
+    }
+    if(gf === "max") {
+      if(t.value === "") delete f.max; else f.max = Number(t.value);
+    }
+    setTextareaFromWorking();
+  });
+
+  guidedFieldsContainer?.addEventListener("change", (e)=>{
+    const t = e.target;
+    const idx = Number(t?.dataset?.idx);
+    const gf = t?.dataset?.gf;
+    if(!Number.isFinite(idx) || !gf) return;
+
+    ensureWorkingConfig();
+    const f = workingConfig.ALLEGATI[guidedKey].fields[idx];
+    if(!f) return;
+
+    if(gf === "type"){
+      f.type = t.value;
+      if(f.type !== "number"){ delete f.min; delete f.max; }
+    }
+    if(gf === "required"){
+      f.required = !!t.checked;
+    }
+    renderGuidedForKey(guidedKey);
+  });
+
+  btnGuidedAddField?.addEventListener("click", ()=>{
+    ensureWorkingConfig();
+    const a = workingConfig.ALLEGATI[guidedKey];
+    if(!Array.isArray(a.fields)) a.fields = [];
+    a.fields.push({ id:"nuovo_campo", label:"Nuovo campo", type:"text", required:false });
+    renderGuidedForKey(guidedKey);
+  });
+
+  btnGuidedRebuildIds?.addEventListener("click", ()=>{
+    ensureWorkingConfig();
+    const a = workingConfig.ALLEGATI[guidedKey];
+    if(!Array.isArray(a.fields)) return;
+    rebuildFieldIds(a.fields);
+    renderGuidedForKey(guidedKey);
+  });
+
+  guidedPdfMin?.addEventListener("input", ()=>{
+    ensureWorkingConfig();
+    if(!workingConfig.PDF_REQUIREMENTS) workingConfig.PDF_REQUIREMENTS = {};
+    const v = (guidedPdfMin.value === "" ? null : Number(guidedPdfMin.value));
+    if(v === null || !Number.isFinite(v) || v <= 0){
+      if(workingConfig.PDF_REQUIREMENTS[guidedKey]) delete workingConfig.PDF_REQUIREMENTS[guidedKey];
+    } else {
+      workingConfig.PDF_REQUIREMENTS[guidedKey] = workingConfig.PDF_REQUIREMENTS[guidedKey] || {min:Math.floor(v), items:[]};
+      workingConfig.PDF_REQUIREMENTS[guidedKey].min = Math.floor(v);
+      if(!Array.isArray(workingConfig.PDF_REQUIREMENTS[guidedKey].items)) workingConfig.PDF_REQUIREMENTS[guidedKey].items = [];
+    }
+    setTextareaFromWorking();
+    renderGuidedForKey(guidedKey);
+  });
+
+  guidedPdfItemsContainer?.addEventListener("input", (e)=>{
+    const t = e.target;
+    const idx = Number(t?.dataset?.idx);
+    const gp = t?.dataset?.gp;
+    if(!Number.isFinite(idx) || gp !== "item") return;
+
+    ensureWorkingConfig();
+    if(!workingConfig.PDF_REQUIREMENTS) workingConfig.PDF_REQUIREMENTS = {};
+    const pr = workingConfig.PDF_REQUIREMENTS[guidedKey] || (workingConfig.PDF_REQUIREMENTS[guidedKey] = {min:2, items:[]});
+    if(!Array.isArray(pr.items)) pr.items = [];
+    pr.items[idx] = t.value;
+    setTextareaFromWorking();
+  });
+
+  btnGuidedAddPdfItem?.addEventListener("click", ()=>{
+    ensureWorkingConfig();
+    if(!workingConfig.PDF_REQUIREMENTS) workingConfig.PDF_REQUIREMENTS = {};
+    const pr = workingConfig.PDF_REQUIREMENTS[guidedKey] || (workingConfig.PDF_REQUIREMENTS[guidedKey] = {min:2, items:[]});
+    if(!Array.isArray(pr.items)) pr.items = [];
+    pr.items.push("Nuova voce requisito PDF");
+    renderGuidedForKey(guidedKey);
+  });
+
+  btnGuidedRemovePdfReq?.addEventListener("click", ()=>{
+    ensureWorkingConfig();
+    if(workingConfig.PDF_REQUIREMENTS && workingConfig.PDF_REQUIREMENTS[guidedKey]){
+      delete workingConfig.PDF_REQUIREMENTS[guidedKey];
+    }
+    renderGuidedForKey(guidedKey);
+  });
+}
+// ===== Fine Editor guidato =====
+
+// ===== Editor guidato: Testi statici (Dati generali + Invio) =====
+const mLabelProtocollo = el("mLabelProtocollo");
+const mPlaceholderProtocollo = el("mPlaceholderProtocollo");
+const mHintProtocollo = el("mHintProtocollo");
+const mLabelDataComp = el("mLabelDataComp");
+const mLabelNoteGen = el("mLabelNoteGen");
+const mPlaceholderNoteGen = el("mPlaceholderNoteGen");
+const mInvioText = el("mInvioText");
+
+function renderStaticTextsEditor(){
+  ensureWorkingConfig();
+  if(!workingConfig.UI_TEXT) workingConfig.UI_TEXT = deepClone(DEFAULT_UI_TEXT);
+
+  const dg = workingConfig.UI_TEXT.datiGenerali || (workingConfig.UI_TEXT.datiGenerali = {});
+  const inv = workingConfig.UI_TEXT.invio || (workingConfig.UI_TEXT.invio = {});
+
+  mLabelProtocollo.value = dg.labelProtocollo ?? "";
+  mPlaceholderProtocollo.value = dg.placeholderProtocollo ?? "";
+  mHintProtocollo.value = dg.hintProtocollo ?? "";
+  mLabelDataComp.value = dg.labelDataCompilazione ?? "";
+  mLabelNoteGen.value = dg.labelNoteGenerali ?? "";
+  mPlaceholderNoteGen.value = dg.placeholderNoteGenerali ?? "";
+  mInvioText.value = inv.text ?? "";
+}
+
+function wireStaticTextsEditor(){
+  const onChange = ()=>{
+    ensureWorkingConfig();
+    if(!workingConfig.UI_TEXT) workingConfig.UI_TEXT = deepClone(DEFAULT_UI_TEXT);
+    const dg = workingConfig.UI_TEXT.datiGenerali || (workingConfig.UI_TEXT.datiGenerali = {});
+    const inv = workingConfig.UI_TEXT.invio || (workingConfig.UI_TEXT.invio = {});
+
+    dg.labelProtocollo = mLabelProtocollo.value;
+    dg.placeholderProtocollo = mPlaceholderProtocollo.value;
+    dg.hintProtocollo = mHintProtocollo.value;
+    dg.labelDataCompilazione = mLabelDataComp.value;
+    dg.labelNoteGenerali = mLabelNoteGen.value;
+    dg.placeholderNoteGenerali = mPlaceholderNoteGen.value;
+    inv.text = mInvioText.value;
+
+    setTextareaFromWorking();
+  };
+
+  [mLabelProtocollo, mPlaceholderProtocollo, mHintProtocollo, mLabelDataComp, mLabelNoteGen, mPlaceholderNoteGen].forEach(x=>{
+    x?.addEventListener("input", onChange);
+  });
+  mInvioText?.addEventListener("input", onChange);
+}
+// ===== Fine Editor guidato: Testi statici =====
+
+
+function applyConfigFromTextarea({save=false}={}){
+  try{
+    const cfg = JSON.parse(cfgJson.value);
+    applyConfig(cfg);
+    if(save) saveConfig();
+    // refresh UI
+    populateAllegati();
+    renderFields();
+    updatePdfRequirements();
+    updateStatus();
+    updateSummary();
+    renderFileList();
+    cfgStatus.textContent = "Stato: configurazione applicata" + (save ? " e salvata." : ".");
+  }catch(e){
+    cfgStatus.textContent = "Stato: ERRORE - " + (e?.message || String(e));
+  }
+}
+
+btnCfgApply?.addEventListener("click", ()=> applyConfigFromTextarea({save:false}));
+btnCfgSave?.addEventListener("click", ()=> applyConfigFromTextarea({save:true}));
+btnCfgReset?.addEventListener("click", ()=>{
+  resetConfig();
+  cfgJson.value = JSON.stringify({ ALLEGATI, CENTRI, PDF_REQUIREMENTS, UI_TEXT }, null, 2);
+  populateAllegati();
+  renderFields();
+  updatePdfRequirements();
+  updateStatus();
+  updateSummary();
+  renderFileList();
+  cfgStatus.textContent = "Stato: ripristinato default.";
+});
+
+btnCfgExport?.addEventListener("click", ()=>{
+  try{
+    const cfg = JSON.parse(cfgJson.value);
+    const blob = new Blob([JSON.stringify(cfg, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "config_centri_unipa.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }catch(e){
+    cfgStatus.textContent = "Stato: ERRORE export - JSON non valido.";
+  }
+});
+
+btnCfgImport?.addEventListener("click", ()=> cfgImportFile.click());
+cfgImportFile?.addEventListener("change", async ()=>{
+  const f = (cfgImportFile.files && cfgImportFile.files[0]) ? cfgImportFile.files[0] : null;
+  cfgImportFile.value = "";
+  if(!f) return;
+  try{
+    const txt = await f.text();
+    const cfg = JSON.parse(txt);
+    cfgJson.value = JSON.stringify(cfg, null, 2);
+    cfgStatus.textContent = "Stato: JSON importato (non ancora applicato).";
+  }catch(e){
+    cfgStatus.textContent = "Stato: ERRORE import - file non valido.";
+  }
+});
+// ===== Fine Modalità Master =====
+
+// --- Logout Master ---
+const btnMasterLogout = el("btnMasterLogout");
+
+btnMasterLogout?.addEventListener("click", ()=>{
+  try{
+    sessionStorage.removeItem(MASTER_SESSION_KEY);
+  }catch(e){}
+
+  // Nasconde pannello e pulisce stato editor
+  hideMasterPanel();
+  workingConfig = null;
+
+  // Piccolo feedback
+  statusBox.className = "status";
+  statusBox.textContent = "Modalità Master disattivata.";
+
+  // Chiude eventuale overlay
+  if(masterOverlay) masterOverlay.style.display = "none";
+});
+
+
+(function init(){
+  el("dataCompilazione").value = todayYMD();
+  setTheme("light");
+
+  // Carica eventuale configurazione personalizzata (se salvata in precedenza)
+  try{ loadConfig(); }catch(e){ console.warn("Config non caricata:", e); }
+  applyUiText();
+
+  el("protocollo").addEventListener("input", updateSummary);
+  el("dataCompilazione").addEventListener("input", updateSummary);
+  el("noteGenerali").addEventListener("input", updateSummary);
+
+  populateAllegati();
+  updatePdfRequirements();
+  updateSummary();
+  renderFileList();
+})();
+</script>
+</body>
+</html>
